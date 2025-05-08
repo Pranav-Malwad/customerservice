@@ -12,7 +12,7 @@ export default function ComplimentBox() {
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 rounded-xl bg-gradient-to-br from-green-100 to-blue-200 shadow-lg text-center">
-      <h1 className="text-2xl font-bold mb-4 text-gray-800">🌟 Your Quote</h1>
+      <h1 className="text-2xl font-bold mb-4 text-gray-800">🌟 Quote of the Day</h1>
       <p className="text-xl text-gray-700 italic mb-2">“{quote.content}”</p>
       <p className="text-sm text-gray-600">— {quote.author}</p>
     </div>
