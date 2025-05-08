@@ -11,7 +11,7 @@ import FeedbackPage from './Pages/FeedbackPage'
 function App() {
  
   return (
-    <>
+    <div className='h-full'>
 
    
       <Navbar />
@@ -22,7 +22,7 @@ function App() {
         <Route path="/games" element={<GamesPage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
       </Routes>
-    </>
+    </div>
   )
 }
 
