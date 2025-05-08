@@ -1,9 +1,10 @@
 import React from 'react'
+import DrinkRating from '../Components/DrinkRating'
 
 const DrinkVotePage = () => {
   return (
     <div>
-      drink vote page 
+      <DrinkRating></DrinkRating>
     </div>
   )
 }

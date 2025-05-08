@@ -1,9 +1,10 @@
 import React from 'react'
+import MusicJukebox from '../Components/MusicJukebox'
 
 const JukeboxPage = () => {
   return (
     <div>
-      juke box page 
+      <MusicJukebox></MusicJukebox> 
     </div>
   )
 }

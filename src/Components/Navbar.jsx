@@ -28,24 +28,24 @@ export default function Navbar() {
                 Quote of the Day
               </Link>
             </li>
-          <li>
+          {/* <li>
             <Link to="/drink-vote" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
               Drink of the Day
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link to="/jukebox" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
               Music Jukebox
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/games" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
               Mini Games
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link to="/feedback" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
-              Twisted Feedback
+              Feedback
             </Link>
           </li>
         </ul>
@@ -60,24 +60,24 @@ export default function Navbar() {
                 Quote of the Day
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/drink-vote" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Drink of the Day
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link to="/jukebox" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Music Jukebox
               </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/games" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Mini Games
               </Link>
-            </li>
+            </li> */}
             <li>
               <Link to="/feedback" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
-                Twisted Feedback
+                Feedback
               </Link>
             </li>
           </ul>
