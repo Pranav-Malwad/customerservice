@@ -86,6 +86,26 @@ const YouTubeJukebox = () => {
       fetchQueue();
     }
 
+    useEffect(() => {
+      if (currentVideo) {
+        if (playerRef.current && typeof playerRef.current.loadVideoById === "function") {
+          playerRef.current.loadVideoById(currentVideo);
+        } else {
+          // fallback: recreate player
+          playerRef.current = new window.YT.Player("yt-player", {
+            height: "390",
+            width: "640",
+            videoId: currentVideo,
+            events: {
+              onReady: onPlayerReady,
+              onStateChange: onPlayerStateChange,
+            },
+          });
+        }
+      }
+    }, [currentVideo]);
+    
+
     const loadPlayer = () => {
       if (currentVideo) {
         playerRef.current = new window.YT.Player("yt-player", {
