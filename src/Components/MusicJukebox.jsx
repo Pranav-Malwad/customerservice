@@ -95,8 +95,8 @@
 //   );
 // }
 
-// YouTubeJukebox.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const YouTubeJukebox = () => {
   const [queue, setQueue] = useState([]);
@@ -160,22 +160,44 @@ const YouTubeJukebox = () => {
   }, []);
 
   return (
-    <div>
-      <h2>YouTube Music Jukebox</h2>
-      <input
-        type="text"
-        placeholder="Search a song"
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') addToQueue(e.target.value);
-        }}
-      />
-      <div id="yt-player"></div>
-      <h4>Upcoming Queue</h4>
-      <ol>
-        {queue.slice(1).map((vid, idx) => (
-          <li key={idx}>{vid}</li>
-        ))}
-      </ol>
+    <div className="container py-5">
+      <h2 className="text-center mb-4">YouTube Music Jukebox</h2>
+
+      <div className="d-flex justify-content-center mb-4">
+        <input
+          type="text"
+          className="form-control w-50"
+          placeholder="Search a song"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') addToQueue(e.target.value);
+          }}
+        />
+      </div>
+
+      <div id="yt-player" className="mx-auto mb-4"></div>
+
+      <div className="queue-section">
+        <h4 className="mb-3">Upcoming Queue</h4>
+        <ul className="list-group">
+          {queue.slice(1).map((vid, idx) => (
+            <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
+              <span>Video {idx + 1}</span>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => {
+                  setQueue((prev) => prev.filter((item) => item !== vid));
+                }}
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="text-center mt-5">
+        {queue.length === 0 && <p>No songs in queue</p>}
+      </div>
     </div>
   );
 };
