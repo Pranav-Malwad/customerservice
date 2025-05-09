@@ -9,7 +9,7 @@ export default function MusicJukebox() {
   }, []);
 
   const fetchSongs = async () => {
-    const response = await fetch('http://localhost:5000/api/songs');
+    const response = await fetch('https://customerservice-mf18.onrender.com/api/songs');
     const data = await response.json();
     setSongList(data);
   };
@@ -21,7 +21,7 @@ export default function MusicJukebox() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (song.trim()) {
-      const response = await fetch('http://localhost:5000/api/songs', {
+      const response = await fetch('https://customerservice-mf18.onrender.com/api/songs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ export default function MusicJukebox() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/api/songs/${id}`, {
+    await fetch(`https://customerservice-mf18.onrender.com/api/songs/${id}`, {
       method: 'DELETE',
     });
     setSongList(songList.filter((song) => song._id !== id));
