@@ -10,7 +10,8 @@ const YouTubeJukebox = () => {
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const playerRef = useRef(null);
   const hasFetchedQueue = useRef(false);
-  const apiKey = "AIzaSyD4JOPyolbdNqLP5RoHa--R2Jmx-vsTskY";
+  // const apiKey = "AIzaSyD4JOPyolbdNqLP5RoHa--R2Jmx-vsTskY";
+  const apiKey = "AIzaSyAzyi3FBslW4h86guVXCCDg2Q_AW1jAUek";
 
   // Fetch the queue from the server on load
   const fetchQueue = async () => {
