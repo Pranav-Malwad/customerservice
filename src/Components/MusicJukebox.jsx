@@ -95,107 +95,89 @@
 //   );
 // }
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import queryString from 'query-string';
+// YouTubeJukebox.jsx
+import React, { useState, useRef, useEffect } from 'react';
 
-const clientId = 'd9e0bafffdd64ff2927ab81faeaf12da';
-const redirectUri = 'https://complimenter.netlify.app/jukebox'; // Update this based on your environment
-const scopes = [
-  'playlist-read-private',
-  'playlist-modify-private',
-  'playlist-modify-public',
-  'user-read-private',
-];
+const YouTubeJukebox = () => {
+  const [queue, setQueue] = useState([]);
+  const [currentVideo, setCurrentVideo] = useState(null);
+  const playerRef = useRef(null);
 
-const MusicJukebox = () => {
-  const [token, setToken] = useState('');
-  const [playlistId, setPlaylistId] = useState('0Z7za9pQFEaGBVYTnvJMi1');
-  const [tracks, setTracks] = useState([]);
-  const [search, setSearch] = useState('');
-  const [recommendations, setRecommendations] = useState([]);
+  const addToQueue = async (query) => {
+    const apiKey = 'AIzaSyD4JOPyolbdNqLP5RoHa--R2Jmx-vsTskY';
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
+        query
+      )}&type=video&key=${apiKey}`
+    );
+    const data = await response.json();
+    const videoId = data.items[0]?.id?.videoId;
+    if (videoId) {
+      setQueue((prev) => [...prev, videoId]);
+      if (!currentVideo) {
+        setCurrentVideo(videoId);
+      }
+    }
+  };
+
+  const onPlayerReady = (event) => {
+    event.target.playVideo();
+  };
+
+  const onPlayerStateChange = (event) => {
+    if (event.data === window.YT.PlayerState.ENDED) {
+      setQueue((prev) => {
+        const newQueue = [...prev];
+        newQueue.shift();
+        setCurrentVideo(newQueue[0] || null);
+        return newQueue;
+      });
+    }
+  };
 
   useEffect(() => {
-    const hash = queryString.parse(window.location.hash);
-    if (hash.access_token) {
-      setToken(hash.access_token);
-      window.location.hash = '';
+    if (currentVideo && window.YT && window.YT.Player) {
+      if (playerRef.current) {
+        playerRef.current.loadVideoById(currentVideo);
+      } else {
+        playerRef.current = new window.YT.Player('yt-player', {
+          height: '390',
+          width: '640',
+          videoId: currentVideo,
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+          },
+        });
+      }
     }
+  }, [currentVideo]);
+
+  useEffect(() => {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.body.appendChild(tag);
   }, []);
 
-  useEffect(() => {
-    if (token && playlistId) {
-      fetchPlaylistTracks();
-    }
-  }, [token, playlistId]);
-
-  const login = () => {
-    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes.join(' '))}`;
-    window.location = authUrl;
-  };
-
-  const fetchPlaylistTracks = async () => {
-    const res = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setTracks(res.data.items);
-  };
-
-  const searchSongs = async () => {
-    const res = await axios.get(`https://api.spotify.com/v1/search`, {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { q: search, type: 'track', limit: 5 },
-    });
-    setRecommendations(res.data.tracks.items);
-  };
-
-  const addTrackToPlaylist = async (trackUri) => {
-    await axios.post(
-      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-      { uris: [trackUri] },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    alert('Track added to playlist!');
-    fetchPlaylistTracks(); // refresh
-  };
-
-  if (!token) {
-    return <button className="btn btn-success" onClick={login}>Login with Spotify</button>;
-  }
-
   return (
-    <div className="container">
-      <h2>🎵 Music Jukebox</h2>
-      <h4>Playlist Tracks</h4>
-      <ul>
-        {tracks.map(({ track }, idx) => (
-          <li key={idx}>{track.name} - {track.artists[0].name}</li>
-        ))}
-      </ul>
-
-      <hr />
-      <h4>Recommend a Song</h4>
+    <div>
+      <h2>YouTube Music Jukebox</h2>
       <input
         type="text"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search for a song"
-        className="form-control"
+        placeholder="Search a song"
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') addToQueue(e.target.value);
+        }}
       />
-      <button className="btn btn-primary mt-2" onClick={searchSongs}>Search</button>
-
-      <ul>
-        {recommendations.map((track, idx) => (
-          <li key={idx}>
-            {track.name} - {track.artists[0].name}
-            <button className="btn btn-sm btn-outline-success ms-2" onClick={() => addTrackToPlaylist(track.uri)}>
-              Recommend
-            </button>
-          </li>
+      <div id="yt-player"></div>
+      <h4>Upcoming Queue</h4>
+      <ol>
+        {queue.slice(1).map((vid, idx) => (
+          <li key={idx}>{vid}</li>
         ))}
-      </ul>
+      </ol>
     </div>
   );
 };
 
-export default MusicJukebox;
+export default YouTubeJukebox;
