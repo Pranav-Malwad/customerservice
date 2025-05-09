@@ -44,7 +44,7 @@ export default function Navbar() {
             </Link>
           </li> */}
           <li>
-            <Link to="/feedback" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
+            <Link to="/" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
               Feedback
             </Link>
           </li>
@@ -76,7 +76,7 @@ export default function Navbar() {
               </Link>
             </li> */}
             <li>
-              <Link to="/feedback" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
+              <Link to="/" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Feedback
               </Link>
             </li>
