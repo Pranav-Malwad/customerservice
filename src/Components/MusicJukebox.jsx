@@ -32,27 +32,52 @@ const YouTubeJukebox = () => {
     event.target.playVideo();
   };
 
+  // const onPlayerStateChange = (event) => {
+  //   if (event.data === window.YT.PlayerState.ENDED) {
+  //     setQueue((prev) => {
+  //       const newQueue = [...prev];
+  //       newQueue.shift();
+  //       const nextVideo = newQueue[0]?.videoId || null;
+  //       setCurrentVideo(nextVideo);
+  //       return newQueue;
+  //     });
+
+  //     if (queue.length > 0) {
+  //       const finishedVideo = queue[0];
+  //       fetch(`https://customerservice-mf18.onrender.com/api/delete-song/${finishedVideo.videoId}`, {
+  //         method: "DELETE",
+  //       }).catch((error) =>
+  //         console.error("Error deleting finished song from queue:", error)
+  //       );
+  //     }
+      
+  //   }
+  // };
+
   const onPlayerStateChange = (event) => {
     if (event.data === window.YT.PlayerState.ENDED) {
-      setQueue((prev) => {
-        const newQueue = [...prev];
-        newQueue.shift();
-        const nextVideo = newQueue[0]?.videoId || null;
-        setCurrentVideo(nextVideo);
-        return newQueue;
-      });
-
-      if (queue.length > 0) {
-        const finishedVideo = queue[0];
+      setQueue((prevQueue) => {
+        if (prevQueue.length === 0) return prevQueue;
+  
+        const finishedVideo = prevQueue[0];
+        const updatedQueue = prevQueue.slice(1);
+        const nextVideoId = updatedQueue[0]?.videoId || null;
+  
+        // Update current video
+        setCurrentVideo(nextVideoId);
+  
+        // Delete from server
         fetch(`https://customerservice-mf18.onrender.com/api/delete-song/${finishedVideo.videoId}`, {
           method: "DELETE",
         }).catch((error) =>
           console.error("Error deleting finished song from queue:", error)
         );
-      }
-      
+  
+        return updatedQueue;
+      });
     }
   };
+  
 
   // Initialize player and queue
   useEffect(() => {
