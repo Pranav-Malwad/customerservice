@@ -310,6 +310,83 @@ app.post('/api/admin/login', async (req, res) => {
   res.status(200).json({ token, user: { username: user.username, role: user.role } });
 });
 
+
+
+// queue stroe 
+// Song Queue Schema
+const songQueueSchema = new mongoose.Schema({
+  videoId: String,
+  title: String,
+  thumbnail: String,
+});
+
+// Create model
+const SongQueue = mongoose.model('SongQueue', songQueueSchema);
+
+// API Routes
+
+// Add song to the queue
+app.post("/api/add-to-queue", async (req, res) => {
+  try {
+    const { videoId, title, thumbnail } = req.body;
+
+    const newSong = new SongQueue({
+      videoId,
+      title,
+      thumbnail,
+    });
+
+    await newSong.save();
+    res.status(201).json({ message: "Song added to queue!", song: newSong });
+  } catch (error) {
+    res.status(500).json({ message: "Error adding song to queue", error });
+  }
+});
+
+// Get current queue
+app.get("/api/get-queue", async (req, res) => {
+  try {
+    const queue = await SongQueue.find();
+    res.status(200).json({ queue });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching queue", error });
+  }
+});
+
+// Clear the queue (after song is played)
+app.delete("/api/clear-queue", async (req, res) => {
+  try {
+    await SongQueue.deleteMany({});
+    res.status(200).json({ message: "Queue cleared!" });
+  } catch (error) {
+    res.status(500).json({ message: "Error clearing queue", error });
+  }
+});
+
+// DELETE a single song from the queue by videoId
+app.delete("/api/delete-song/:videoId", async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const result = await SongQueue.deleteOne({ videoId });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "Song not found in queue" });
+    }
+
+    res.status(200).json({ message: "Song deleted from queue" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting song", error });
+  }
+});
+
+
+// Set up a basic home route
+app.get("/", (req, res) => {
+  res.send("YouTube Jukebox Backend");
+});
+
+// queue stroe 
+
 // ========================
 // SERVER START
 // ========================

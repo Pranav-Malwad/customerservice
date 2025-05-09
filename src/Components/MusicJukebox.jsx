@@ -9,8 +9,107 @@ const YouTubeJukebox = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const playerRef = useRef(null);
-
+  const hasFetchedQueue = useRef(false);
   const apiKey = "AIzaSyD4JOPyolbdNqLP5RoHa--R2Jmx-vsTskY";
+
+  // Fetch the queue from the server on load
+  const fetchQueue = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/get-queue");
+      const data = await response.json();
+      setQueue(data.queue);
+      if (data.queue.length > 0) {
+        setCurrentVideo(data.queue[0].videoId);
+      }
+    } catch (error) {
+      console.error("Error fetching queue:", error);
+    }
+  };
+
+  // Setup the YouTube player
+  const onPlayerReady = (event) => {
+    event.target.playVideo();
+  };
+
+  const onPlayerStateChange = (event) => {
+    if (event.data === window.YT.PlayerState.ENDED) {
+      setQueue((prev) => {
+        const newQueue = [...prev];
+        newQueue.shift();
+        const nextVideo = newQueue[0]?.videoId || null;
+        setCurrentVideo(nextVideo);
+        return newQueue;
+      });
+
+      if (queue.length > 0) {
+        const finishedVideo = queue[0];
+        fetch(`https://customerservice-mf18.onrender.com/api/delete-song/${finishedVideo.videoId}`, {
+          method: "DELETE",
+        }).catch((error) =>
+          console.error("Error deleting finished song from queue:", error)
+        );
+      }
+      
+    }
+  };
+
+  // Initialize player and queue
+  useEffect(() => {
+    if (!hasFetchedQueue.current) {
+      hasFetchedQueue.current = true;
+      fetchQueue();
+    }
+
+    const loadPlayer = () => {
+      if (currentVideo) {
+        playerRef.current = new window.YT.Player("yt-player", {
+          height: "390",
+          width: "640",
+          videoId: currentVideo,
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+          },
+        });
+      }
+    };
+
+    const loadYTScript = () => {
+      if (!window.YT) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.body.appendChild(tag);
+        window.onYouTubeIframeAPIReady = loadPlayer;
+      } else {
+        loadPlayer();
+      }
+    };
+
+    loadYTScript();
+
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.destroy();
+      }
+    };
+  }, [currentVideo]);
+
+  // useEffect(() => {
+  //   if (currentVideo && playerRef.current) {
+  //     playerRef.current.loadVideoById(currentVideo);
+  //   }
+  // }, [currentVideo]);
+
+  useEffect(() => {
+  if (
+    currentVideo &&
+    playerRef.current &&
+    typeof playerRef.current.loadVideoById === "function"
+  ) {
+    playerRef.current.loadVideoById(currentVideo);
+  }
+}, [currentVideo]);
+
 
   const fetchSuggestions = async (query) => {
     if (!query) return setSuggestions([]);
@@ -23,7 +122,7 @@ const YouTubeJukebox = () => {
     const suggestions = data.items.map((item) => ({
       id: item.id.videoId,
       title: item.snippet.title,
-      thumbnail: item.snippet.thumbnails?.default?.url || "", // Get thumbnail
+      thumbnail: item.snippet.thumbnails?.default?.url || "",
     }));
     setSuggestions(suggestions);
   };
@@ -31,59 +130,37 @@ const YouTubeJukebox = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-
-    // Debounce API calls
     if (debounceTimeout) clearTimeout(debounceTimeout);
     setDebounceTimeout(setTimeout(() => fetchSuggestions(value), 300));
   };
 
-  const addToQueue = (video) => {
-    setQueue((prev) => [...prev, video]);
-    setSuggestions([]);
-    setSearchTerm("");
-    if (!currentVideo) {
-      setCurrentVideo(video.id);
-    }
-  };
+  const addToQueue = async (video) => {
+    try {
+      const alreadyInQueue = queue.some((v) => v.id === video.id);
+      if (alreadyInQueue) return;
 
-  const onPlayerReady = (event) => {
-    event.target.playVideo();
-  };
-
-  const onPlayerStateChange = (event) => {
-    if (event.data === window.YT.PlayerState.ENDED) {
-      setQueue((prev) => {
-        const newQueue = [...prev];
-        newQueue.shift();
-        setCurrentVideo(newQueue[0]?.id || null);
-        return newQueue;
+      await fetch("https://customerservice-mf18.onrender.com/api/add-to-queue", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          videoId: video.id,
+          title: video.title,
+          thumbnail: video.thumbnail,
+        }),
       });
+
+      setQueue((prev) => [...prev, video]);
+      setSuggestions([]);
+      setSearchTerm("");
+      if (!currentVideo) {
+        setCurrentVideo(video.id);
+      }
+    } catch (error) {
+      console.error("Error adding song to queue:", error);
     }
   };
-
-  useEffect(() => {
-    if (currentVideo && window.YT && window.YT.Player) {
-      if (playerRef.current) {
-        playerRef.current.loadVideoById(currentVideo);
-      } else {
-        playerRef.current = new window.YT.Player("yt-player", {
-          height: "390",
-          width: "640",
-          videoId: currentVideo,
-          events: {
-            onReady: onPlayerReady,
-            onStateChange: onPlayerStateChange,
-          },
-        });
-      }
-    }
-  }, [currentVideo]);
-
-  useEffect(() => {
-    const tag = document.createElement("script");
-    tag.src = "https://www.youtube.com/iframe_api";
-    document.body.appendChild(tag);
-  }, []);
 
   return (
     <div className="container mx-auto py-10 px-5">
@@ -112,7 +189,6 @@ const YouTubeJukebox = () => {
                   alt={video.title}
                   className="w-12 h-8 object-cover rounded mr-3"
                 />
-
                 {video.title}
               </li>
             ))}
