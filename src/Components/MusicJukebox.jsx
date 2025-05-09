@@ -100,7 +100,7 @@
 import { useState, useEffect } from 'react';
 
 const CLIENT_ID = 'd9e0bafffdd64ff2927ab81faeaf12da'; // Your Spotify Client ID
-const REDIRECT_URI = 'https://complimenter.netlify.app/jukebox'; // Replace with your Redirect URI
+const REDIRECT_URI = 'https://complimenter.netlify.app/'; // Replace with your Redirect URI
 const SCOPES = 'user-modify-playback-state user-read-playback-state user-read-currently-playing streaming';
 
 export default function MusicJukebox() {
