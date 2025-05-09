@@ -23,11 +23,11 @@ export default function Navbar() {
 
         {/* Desktop Menu */}
         <ul className="hidden md:flex space-x-6">
-        <li>
+        {/* <li>
               <Link to="/" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Quote of the Day
               </Link>
-            </li>
+            </li> */}
           {/* <li>
             <Link to="/drink-vote" className="text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
               Drink of the Day
@@ -55,11 +55,11 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden px-4 pb-4">
           <ul className="space-y-3">
-          <li>
+          {/* <li>
               <Link to="/" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Quote of the Day
               </Link>
-            </li>
+            </li> */}
             {/* <li>
               <Link to="/drink-vote" className="block text-[#065f46] hover:text-[#059669] font-medium transition-colors duration-200">
                 Drink of the Day

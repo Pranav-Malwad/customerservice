@@ -16,11 +16,11 @@ function App() {
    
       <Navbar />
       <Routes>
-        <Route path="/" element={<ComplimentPage />} />
-        <Route path="/drink-vote" element={<DrinkVotePage />} />
+        <Route path="/" element={<FeedbackPage />} />
+        {/* <Route path="/drink-vote" element={<DrinkVotePage />} /> */}
         <Route path="/jukebox" element={<JukeboxPage />} />
-        <Route path="/games" element={<GamesPage />} />
-        <Route path="/feedback" element={<FeedbackPage />} />
+        {/* <Route path="/games" element={<GamesPage />} /> */}
+        {/* <Route path="/feedback" element={<FeedbackPage />} /> */}
       </Routes>
     </div>
   )
