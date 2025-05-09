@@ -14,29 +14,35 @@ import AdminHeader from "./Components/AdminHeader";
 import { useLocation } from "react-router-dom";
 function App() {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
     <div className="h-full">
-        {isAdminRoute ? <AdminHeader /> : <Navbar />}
+      {isAdminRoute ? <AdminHeader /> : <Navbar />}
       <Routes>
         <Route path="/" element={<FeedbackPage />} />
         <Route path="/jukebox" element={<JukeboxPage />} />
-        <Route path="/admin/feedback" element={
-          <ProtectedRoute>
-          <AdminFeedbackPanel />
-          </ProtectedRoute>
-          } />
-
         <Route path="/login" element={<AdminLogin></AdminLogin>} />
+
+        <Route
+          path="/admin/feedback"
+          element={
+            <ProtectedRoute>
+              <AdminFeedbackPanel />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/admin/register"
           element={
-          <ProtectedRoute>
-          <AdminRegister></AdminRegister>
-         </ProtectedRoute>
+            <ProtectedRoute>
+              <AdminRegister></AdminRegister>
+            </ProtectedRoute>
           }
         />
+
+       
       </Routes>
     </div>
   );
