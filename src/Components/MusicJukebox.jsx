@@ -96,7 +96,7 @@
 // }
 
 import React, { useState, useRef, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'tailwindcss/tailwind.css';
 
 const YouTubeJukebox = () => {
   const [queue, setQueue] = useState([]);
@@ -160,13 +160,13 @@ const YouTubeJukebox = () => {
   }, []);
 
   return (
-    <div className="container py-5">
-      <h2 className="text-center mb-4">YouTube Music Jukebox</h2>
+    <div className="container mx-auto py-10 px-5">
+      <h2 className="text-3xl font-semibold text-center mb-5">YouTube Music Jukebox</h2>
 
-      <div className="d-flex justify-content-center mb-4">
+      <div className="flex justify-center mb-5">
         <input
           type="text"
-          className="form-control w-50"
+          className="border-2 border-gray-300 p-2 w-full md:w-1/2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           placeholder="Search a song"
           onKeyDown={(e) => {
             if (e.key === 'Enter') addToQueue(e.target.value);
@@ -174,16 +174,16 @@ const YouTubeJukebox = () => {
         />
       </div>
 
-      <div id="yt-player" className="mx-auto mb-4"></div>
+      <div id="yt-player" className="mx-auto mb-5 rounded-lg shadow-lg"></div>
 
       <div className="queue-section">
-        <h4 className="mb-3">Upcoming Queue</h4>
-        <ul className="list-group">
+        <h4 className="text-2xl font-medium mb-3">Upcoming Queue</h4>
+        <ul className="space-y-2">
           {queue.slice(1).map((vid, idx) => (
-            <li key={idx} className="list-group-item d-flex justify-content-between align-items-center">
-              <span>Video {idx + 1}</span>
+            <li key={idx} className="flex justify-between items-center bg-gray-100 p-3 rounded-md shadow-sm">
+              <span className="text-lg">Video {idx + 1}</span>
               <button
-                className="btn btn-danger btn-sm"
+                className="bg-red-500 text-white px-3 py-1 rounded-md text-sm"
                 onClick={() => {
                   setQueue((prev) => prev.filter((item) => item !== vid));
                 }}
@@ -196,7 +196,7 @@ const YouTubeJukebox = () => {
       </div>
 
       <div className="text-center mt-5">
-        {queue.length === 0 && <p>No songs in queue</p>}
+        {queue.length === 0 && <p className="text-gray-500">No songs in queue</p>}
       </div>
     </div>
   );
