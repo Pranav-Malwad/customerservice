@@ -95,74 +95,107 @@
 //   );
 // }
 
-import { useState, useEffect } from 'react';
-import { generateCodeChallenge, generateCodeVerifier } from '../utils/utils'; // Adjust path as needed
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import queryString from 'query-string';
 
-const CLIENT_ID = 'd9e0bafffdd64ff2927ab81faeaf12da';
-const REDIRECT_URI = 'https://complimenter.netlify.app/jukebox';
-const SCOPES = 'user-modify-playback-state user-read-playback-state user-read-currently-playing streaming';
+const clientId = 'd9e0bafffdd64ff2927ab81faeaf12da';
+const redirectUri = 'https://complimenter.netlify.app/jukebox'; // Update this based on your environment
+const scopes = [
+  'playlist-read-private',
+  'playlist-modify-private',
+  'playlist-modify-public',
+  'user-read-private',
+];
 
-export default function MusicJukebox() {
-  const [song, setSong] = useState('');
-  const [songList, setSongList] = useState([]);
-  const [accessToken, setAccessToken] = useState('');
+const MusicJukebox = () => {
+  const [token, setToken] = useState('');
+  const [playlistId, setPlaylistId] = useState('0Z7za9pQFEaGBVYTnvJMi1');
+  const [tracks, setTracks] = useState([]);
+  const [search, setSearch] = useState('');
+  const [recommendations, setRecommendations] = useState([]);
 
-  // 1️⃣ Handle token from redirect
   useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const code = queryParams.get('code');
-
-    const storedVerifier = window.localStorage.getItem('spotify_code_verifier');
-
-    if (code && storedVerifier && !accessToken) {
-      const body = new URLSearchParams({
-        client_id: CLIENT_ID,
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri: REDIRECT_URI,
-        code_verifier: storedVerifier,
-      });
-
-      fetch('https://accounts.spotify.com/api/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body.toString(),
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.access_token) {
-            window.localStorage.setItem('spotify_token', data.access_token);
-            setAccessToken(data.access_token);
-            window.history.replaceState({}, document.title, REDIRECT_URI); // remove ?code= from URL
-          }
-        });
-    } else {
-      const token = window.localStorage.getItem('spotify_token');
-      if (token) setAccessToken(token);
+    const hash = queryString.parse(window.location.hash);
+    if (hash.access_token) {
+      setToken(hash.access_token);
+      window.location.hash = '';
     }
   }, []);
 
-  // 2️⃣ Login with PKCE
-  const handleLogin = async () => {
-    const verifier = generateCodeVerifier();
-    const challenge = await generateCodeChallenge(verifier);
+  useEffect(() => {
+    if (token && playlistId) {
+      fetchPlaylistTracks();
+    }
+  }, [token, playlistId]);
 
-    window.localStorage.setItem('spotify_code_verifier', verifier);
-
-    const params = new URLSearchParams({
-      client_id: CLIENT_ID,
-      response_type: 'code',
-      redirect_uri: REDIRECT_URI,
-      scope: SCOPES,
-      code_challenge_method: 'S256',
-      code_challenge: challenge,
-    });
-
-    window.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+  const login = () => {
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes.join(' '))}`;
+    window.location = authUrl;
   };
 
-}
+  const fetchPlaylistTracks = async () => {
+    const res = await axios.get(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setTracks(res.data.items);
+  };
 
-  // 🔁 Rest of your code (fetchSongs, handleSubmit, searchAndQueueSong, etc.) remains the same
+  const searchSongs = async () => {
+    const res = await axios.get(`https://api.spotify.com/v1/search`, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { q: search, type: 'track', limit: 5 },
+    });
+    setRecommendations(res.data.tracks.items);
+  };
+
+  const addTrackToPlaylist = async (trackUri) => {
+    await axios.post(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      { uris: [trackUri] },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    alert('Track added to playlist!');
+    fetchPlaylistTracks(); // refresh
+  };
+
+  if (!token) {
+    return <button className="btn btn-success" onClick={login}>Login with Spotify</button>;
+  }
+
+  return (
+    <div className="container">
+      <h2>🎵 Music Jukebox</h2>
+      <h4>Playlist Tracks</h4>
+      <ul>
+        {tracks.map(({ track }, idx) => (
+          <li key={idx}>{track.name} - {track.artists[0].name}</li>
+        ))}
+      </ul>
+
+      <hr />
+      <h4>Recommend a Song</h4>
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search for a song"
+        className="form-control"
+      />
+      <button className="btn btn-primary mt-2" onClick={searchSongs}>Search</button>
+
+      <ul>
+        {recommendations.map((track, idx) => (
+          <li key={idx}>
+            {track.name} - {track.artists[0].name}
+            <button className="btn btn-sm btn-outline-success ms-2" onClick={() => addTrackToPlaylist(track.uri)}>
+              Recommend
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default MusicJukebox;
