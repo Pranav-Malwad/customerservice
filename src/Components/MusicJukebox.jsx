@@ -95,21 +95,21 @@ const YouTubeJukebox = () => {
     };
   }, [currentVideo]);
 
-  // useEffect(() => {
-  //   if (currentVideo && playerRef.current) {
-  //     playerRef.current.loadVideoById(currentVideo);
-  //   }
-  // }, [currentVideo]);
-
   useEffect(() => {
-  if (
-    currentVideo &&
-    playerRef.current &&
-    typeof playerRef.current.loadVideoById === "function"
-  ) {
-    playerRef.current.loadVideoById(currentVideo);
-  }
-}, [currentVideo]);
+    if (currentVideo && playerRef.current) {
+      playerRef.current.loadVideoById(currentVideo);
+    }
+  }, [currentVideo]);
+
+//   useEffect(() => {
+//   if (
+//     currentVideo &&
+//     playerRef.current &&
+//     typeof playerRef.current.loadVideoById === "function"
+//   ) {
+//     playerRef.current.loadVideoById(currentVideo);
+//   }
+// }, [currentVideo]);
 
 
   const fetchSuggestions = async (query) => {
