@@ -310,27 +310,6 @@ app.post('/api/admin/login', async (req, res) => {
   res.status(200).json({ token, user: { username: user.username, role: user.role } });
 });
 
-// GET all snack suggestions (admin only)
-app.get("/api/snack-suggestions", auth, isAdmin, async (req, res) => {
-  try {
-    const suggestions = await SnackPollSchema.find().sort({ createdAt: -1 });
-    res.status(200).json(suggestions);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch snack suggestions" });
-  }
-});
-
-// DELETE a snack suggestion by ID (admin only)
-app.delete("/api/snack-suggestions/:id", auth, isAdmin, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deleted = await SnackPollSchema.findByIdAndDelete(id);
-    if (!deleted) return res.status(404).json({ error: "Suggestion not found" });
-    res.status(200).json({ message: "Suggestion deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete snack suggestion" });
-  }
-});
 
 
 // Song Queue Schema
@@ -428,6 +407,30 @@ app.post('/api/snackpoll', async (req, res) => {
     res.status(500).json({ error: 'DB error' });
   }
 });
+
+
+// GET all snack suggestions (admin only)
+app.get("/api/snack-suggestions", auth, isAdmin, async (req, res) => {
+  try {
+    const suggestions = await SnackPollSchema.find().sort({ createdAt: -1 });
+    res.status(200).json(suggestions);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch snack suggestions" });
+  }
+});
+
+// DELETE a snack suggestion by ID (admin only)
+app.delete("/api/snack-suggestions/:id", auth, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await SnackPollSchema.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ error: "Suggestion not found" });
+    res.status(200).json({ message: "Suggestion deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete snack suggestion" });
+  }
+});
+
 // queue stroe 
 
 // ========================
