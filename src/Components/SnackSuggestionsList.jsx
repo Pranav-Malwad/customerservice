@@ -8,7 +8,7 @@ export default function SnackSuggestionsList() {
 
   const fetchSuggestions = async () => {
     try {
-      const res = await fetch("https://customerservice-mf18.onrender.com/api/snack-suggestions", {
+      const res = await fetch("http://localhost:5000/api/snack-suggestions", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`, 
         },
