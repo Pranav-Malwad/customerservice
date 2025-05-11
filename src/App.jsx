@@ -12,6 +12,7 @@ import AdminLogin from "./Pages/AdminLogin";
 import AdminRegister from "./Pages/AdminRegister";
 import AdminHeader from "./Components/AdminHeader";
 import { useLocation } from "react-router-dom";
+import SnackSuggestions from "./Pages/SnackSuggestions";
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
@@ -42,6 +43,14 @@ function App() {
           }
         />
 
+          <Route
+          path="/admin/snacksuggestions"
+          element={
+            <ProtectedRoute>
+             <SnackSuggestions></SnackSuggestions>
+            </ProtectedRoute>
+          }
+        />
        
       </Routes>
     </div>

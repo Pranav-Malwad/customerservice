@@ -310,9 +310,29 @@ app.post('/api/admin/login', async (req, res) => {
   res.status(200).json({ token, user: { username: user.username, role: user.role } });
 });
 
+// GET all snack suggestions (admin only)
+app.get("/api/snack-suggestions", auth, isAdmin, async (req, res) => {
+  try {
+    const suggestions = await SnackSuggestion.find().sort({ createdAt: -1 });
+    res.status(200).json(suggestions);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch snack suggestions" });
+  }
+});
+
+// DELETE a snack suggestion by ID (admin only)
+app.delete("/api/snack-suggestions/:id", auth, isAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await SnackSuggestion.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ error: "Suggestion not found" });
+    res.status(200).json({ message: "Suggestion deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete snack suggestion" });
+  }
+});
 
 
-// queue stroe 
 // Song Queue Schema
 const songQueueSchema = new mongoose.Schema({
   videoId: String,
@@ -385,6 +405,29 @@ app.get("/", (req, res) => {
   res.send("YouTube Jukebox Backend");
 });
 
+
+
+const SnackPollSchema = new mongoose.Schema({
+  snack: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
+const SnackPoll = mongoose.model('SnackPoll', SnackPollSchema);
+
+// API
+app.post('/api/snackpoll', async (req, res) => {
+  const { snack } = req.body;
+  if (!snack || snack.trim() === '') {
+    return res.status(400).json({ error: 'Snack is required' });
+  }
+
+  try {
+    await SnackPoll.create({ snack: snack.trim() });
+    res.status(200).json({ message: 'Submitted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'DB error' });
+  }
+});
 // queue stroe 
 
 // ========================

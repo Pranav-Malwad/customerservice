@@ -3,6 +3,7 @@ import { useState } from 'react';
 export default function FeedbackForm() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false); // Step 1: loading state
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -11,7 +12,10 @@ export default function FeedbackForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('');
+      setLoading(true); // Step 2: Start loader
 
+
+       try {
     const response = await fetch('https://customerservice-mf18.onrender.com/api/feedback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -24,6 +28,11 @@ export default function FeedbackForm() {
       setForm({ name: '', email: '', message: '' });
     } else {
       setStatus(result.error || 'Something went wrong');
+    }
+     } catch (error) {
+       setStatus('Network error. Please try again.');
+    } finally {
+      setLoading(false); // Step 3: Stop loader
     }
   };
 
@@ -65,11 +74,16 @@ export default function FeedbackForm() {
         ></textarea>
 
         <div className="flex items-center justify-center">
-          <button
+         <button
             type="submit"
-            className="bg-[#10b981] hover:bg-[#059669] text-white font-semibold px-6 py-2 rounded-lg transition-all duration-200"
+            disabled={loading} // Step 4: Disable button while loading
+            className={`font-semibold px-6 py-2 rounded-lg transition-all duration-200 ${
+              loading
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-[#10b981] hover:bg-[#059669] text-white'
+            }`}
           >
-            Submit Feedback
+            {loading ? 'Submitting...' : 'Submit Feedback'} {/* Step 5: Loader text */}
           </button>
         </div>
       </form>

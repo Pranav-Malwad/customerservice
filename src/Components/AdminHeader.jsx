@@ -21,7 +21,12 @@ export default function AdminHeader() {
             Review Feedbacks
           </button>
 
-
+         <button
+            onClick={() => navigate('/admin/snacksuggestions')}
+            className="hover:text-green-100 transition"
+          >
+            Snack Suggestions
+          </button>
 
 
 
