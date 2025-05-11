@@ -431,6 +431,50 @@ app.delete("/api/snack-suggestions/:id", auth, isAdmin, async (req, res) => {
   }
 });
 
+
+
+// spotify integration 
+
+let queue = [];
+
+app.post('/search', async (req, res) => {
+    const { query } = req.body;
+    try {
+        const token = await getSpotifyToken();
+        const result = await axios.get(
+            `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=5`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        res.json(result.data.tracks.items);
+    } catch (err) {
+        res.status(500).json({ error: 'Search failed' });
+    }
+});
+
+app.post('/queue', (req, res) => {
+    const { song } = req.body;
+    queue.push(song);
+    res.json({ message: 'Song added to queue', position: queue.length });
+});
+
+app.get('/queue', (req, res) => {
+    res.json(queue);
+});
+
+// Get Spotify token
+async function getSpotifyToken() {
+    const response = await axios.post('https://accounts.spotify.com/api/token', 
+        new URLSearchParams({ grant_type: 'client_credentials' }).toString(),
+        {
+            headers: {
+                'Authorization': 'Basic ' + Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64'),
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }
+    );
+    return response.data.access_token;
+}
+
 // queue stroe 
 
 // ========================
